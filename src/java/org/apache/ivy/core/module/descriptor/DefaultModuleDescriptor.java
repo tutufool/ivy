@@ -628,11 +628,22 @@ public class DefaultModuleDescriptor implements ModuleDescriptor {
             ddm);
     }
 
+    private Map<String, DependencyDescriptor> cache = new HashMap<String, DependencyDescriptor>(128);
+
     public DependencyDescriptor mediate(DependencyDescriptor dd) {
+        String key = String.valueOf(dd.hashCode());
+        DependencyDescriptor result = cache.get(key);
+        if (result != null) {
+            // Message.verbose("mediate Cache hitted" + key);
+            return result;
+        }
+
         Object[] mediators = dependencyDescriptorMediators.getRules(dd.getDependencyId());
         for (int i = 0; i < mediators.length; i++) {
             dd = ((DependencyDescriptorMediator) mediators[i]).mediate(dd);
         }
+
+        cache.put(key, dd);
         return dd;
     }
 

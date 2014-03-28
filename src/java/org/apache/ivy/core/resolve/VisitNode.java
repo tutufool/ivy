@@ -20,10 +20,12 @@ package org.apache.ivy.core.resolve;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ivy.core.IvyContext;
 import org.apache.ivy.core.module.descriptor.Configuration;
@@ -514,6 +516,36 @@ public class VisitNode {
 
     public boolean isConfRequiredByMergedUsageOnly(String conf) {
         return node.isConfRequiredByMergedUsageOnly(rootModuleConf, conf);
+    }
+
+    private Map<String, DependencyDescriptor> ddCache = new HashMap<String, DependencyDescriptor>(128);
+
+    public DependencyDescriptor mediate(DependencyDescriptor dd) {
+        // mediating dd through dependers stack
+        String key = String.valueOf(dd.hashCode());
+        DependencyDescriptor result = ddCache.get(key);
+        if (result != null) {
+
+            return result;
+        }
+
+        List dependers = new ArrayList(getPath());
+        // the returned path contains the currently visited node, we are only interested in
+        // the dependers, so we remove the currently visted node from the end
+        dependers.remove(dependers.size() - 1);
+        // we want to apply mediation going up in the dependers stack, not the opposite
+        Collections.reverse(dependers);
+        for (Iterator iterator = dependers.iterator(); iterator.hasNext();) {
+            VisitNode n = (VisitNode) iterator.next();
+            ModuleDescriptor md = n.getDescriptor();
+            if (md != null) {
+                dd = md.mediate(dd);
+            }
+        }
+
+        ddCache.put(key, dd);
+
+        return dd;
     }
 
 }

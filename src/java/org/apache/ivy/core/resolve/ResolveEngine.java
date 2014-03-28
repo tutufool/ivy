@@ -692,12 +692,12 @@ public class ResolveEngine {
     private void fetchDependencies(VisitNode node, String conf, boolean shouldBePublic) {
         checkInterrupted();
         long start = System.currentTimeMillis();
-        if (node.getParent() != null) {
-            Message.verbose("== resolving dependencies " + node.getParent().getId() + "->"
-                    + node.getId() + " [" + node.getParentConf() + "->" + conf + "]");
-        } else {
-            Message.verbose("== resolving dependencies for " + node.getId() + " [" + conf + "]");
-        }
+        // if (node.getParent() != null) {
+        // Message.verbose("== resolving dependencies " + node.getParent().getId() + "->"
+        // + node.getId() + " [" + node.getParentConf() + "->" + conf + "]");
+        // } else {
+        // Message.verbose("== resolving dependencies for " + node.getId() + " [" + conf + "]");
+        // }
         ResolveData data = node.getNode().getData();
         VisitNode parentVisitNode = data.getCurrentVisitNode();
 
